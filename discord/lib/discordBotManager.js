@@ -14,7 +14,8 @@ var getBot = function (configNode) {
           GatewayIntentBits.GuildMessageReactions,
           GatewayIntentBits.DirectMessages,
           GatewayIntentBits.DirectMessageReactions,
-          GatewayIntentBits.MessageContent
+          GatewayIntentBits.MessageContent,
+          GatewayIntentBits.GuildVoiceStates
         ],
         partials: [
           Partials.Channel,
