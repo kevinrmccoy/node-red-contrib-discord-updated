@@ -40,6 +40,7 @@ This page summarizes each node’s purpose and primary I/O so you can scan quick
 - discordReactionManager (in)
   - Adds/removes reactions or listens for reactions on messages.
   - In: `action` (add|remove|listen), `message`, `emoji`.
+  - To stop listening early: set `msg.stop = true` with `msg.message` (ID or object). The collector for that message is stopped immediately.
 
 - discordChannelName (in)
   - Renames channels.

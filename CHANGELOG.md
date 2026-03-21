@@ -1,5 +1,15 @@
 # Changelog\
 
+## 4.3.1
+
+### Features
+- `discordReactionManager`: added `msg.stop` support. Send `msg.stop = true` with `msg.message` to stop listening for reactions on a specific message immediately, without waiting for the timeout to expire.
+
+## 4.3.0
+
+### Features
+- Added `discordVoiceState` node UI template and `GuildVoiceStates` gateway intent so voice state events work out of the box.
+
 ## 4.1.0
 
 ### Breaking Changes
