@@ -77,8 +77,8 @@
   <dl class="message-properties">
     <dt>payload <span class="property-type">string</span></dt>
     <dd><code>"timeout"</code> if the collection time expired, or <code>"commanded"</code> if stopped via <code>msg.stop</code>.</dd>
-    <dt>collected <span class="property-type">number</span></dt>
-    <dd>How many reactions were gathered during the session.</dd>
+    <dt>collected <span class="property-type">object</span></dt>
+    <dd>An object mapping each emoji name to its reaction count, e.g. <code>{ "👍": 5, "👎": 2 }</code>.</dd>
     <dt>message <span class="property-type">object | string</span></dt>
     <dd>The message that was being watched (echoed from input).</dd>
     <dt>channel <span class="property-type">object | string</span></dt>

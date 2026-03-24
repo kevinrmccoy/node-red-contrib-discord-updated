@@ -1,5 +1,10 @@
 # Changelog\
 
+## 4.3.3
+
+### Features
+- `discordReactionManager`: the `collected` property on `end` messages is now an object mapping each emoji name to its reaction count (e.g. `{ "👍": 5, "👎": 2 }`) instead of a plain count.
+
 ## 4.3.2
 
 ### Features

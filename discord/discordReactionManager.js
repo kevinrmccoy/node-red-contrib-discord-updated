@@ -98,7 +98,7 @@ module.exports = function (RED) {
           send({
             payload: endReason,
             type: "end",
-            collected: collected.size,
+            collected: Object.fromEntries(collected.map(r => [r.emoji.name, r.count])),
             message: msg.message,
             channel: msg.channel,
             _originalFlowMessage: msg

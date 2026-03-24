@@ -9,6 +9,12 @@ const discordBotManager = require('../discord/lib/discordBotManager');
 
 helper.init(require.resolve('node-red'));
 
+function mockCollection(entries) {
+  const map = new Map(entries);
+  map.map = function (fn) { return [...this.values()].map(fn); };
+  return map;
+}
+
 describe('discordReactionManager Node', function () {
   let getBotStub;
   let bot;
@@ -144,7 +150,7 @@ describe('discordReactionManager Node', function () {
               if (msg.type !== 'end') return; // skip the open message
               msg.should.have.property('payload', 'timeout');
               msg.should.have.property('type', 'end');
-              msg.should.have.property('collected', 0);
+              msg.should.have.property('collected').eql({});
               msg.should.have.property('message', 'msg-456');
               msg.should.have.property('channel', 'chan-1');
               done();
@@ -154,7 +160,7 @@ describe('discordReactionManager Node', function () {
           });
 
           // Simulate the collector ending due to time
-          endCallback(new Map(), 'time');
+          endCallback(mockCollection([]), 'time');
         } catch (err) {
           done(err);
         }
@@ -180,6 +186,7 @@ describe('discordReactionManager Node', function () {
               if (msg.type !== 'end') return;
               msg.should.have.property('payload', 'commanded');
               msg.should.have.property('type', 'end');
+              msg.should.have.property('collected').eql({ '👍': 3, '👎': 1 });
               msg.should.have.property('message', 'msg-456');
               msg.should.have.property('channel', 'chan-1');
               done();
@@ -188,8 +195,12 @@ describe('discordReactionManager Node', function () {
             }
           });
 
-          // Simulate the collector being stopped manually
-          endCallback(new Map(), 'user');
+          // Simulate the collector being stopped manually with reactions
+          const coll = mockCollection([
+            ['👍', { emoji: { name: '👍' }, count: 3 }],
+            ['👎', { emoji: { name: '👎' }, count: 1 }],
+          ]);
+          endCallback(coll, 'user');
         } catch (err) {
           done(err);
         }
