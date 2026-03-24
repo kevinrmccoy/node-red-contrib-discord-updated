@@ -1,3 +1,8 @@
 node_modules
 node-red-contrib-discord-advancedplus-*.tgz
 node-red-contrib-discord-updated-*.tgz
+
+# Local dev environment
+Dockerfile
+docker-compose.yml
+.dockerignore
