@@ -92,7 +92,30 @@ module.exports = function (RED) {
         });
 
         reactionCollectors.set(message, collector);
-        collector.on('end', () => reactionCollectors.delete(message));
+        collector.on('end', (collected, reason) => {
+          reactionCollectors.delete(message);
+          const endReason = reason === 'time' ? 'timeout' : 'commanded';
+          send({
+            payload: endReason,
+            type: "end",
+            collected: collected.size,
+            message: msg.message,
+            channel: msg.channel,
+            _originalFlowMessage: msg
+          });
+          node.status({
+            fill: "green",
+            shape: "dot",
+            text: "Collector ended (" + endReason + ")"
+          });
+        });
+        send({
+          payload: collectionTime,
+          type: "open",
+          message: msg.message,
+          channel: msg.channel,
+          _originalFlowMessage: msg
+        });
         node.status({
           fill: "green",
           shape: "dot",

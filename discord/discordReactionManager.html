@@ -49,6 +49,19 @@
   </dl>
 
   <h3>What comes out</h3>
+  <p>Every output message includes <code>msg.type</code> so you can tell what happened:</p>
+
+  <h4><code>type: "open"</code> — collector started</h4>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">number</span></dt>
+    <dd>The collection duration in milliseconds.</dd>
+    <dt>message <span class="property-type">object | string</span></dt>
+    <dd>The message being watched (echoed from input).</dd>
+    <dt>channel <span class="property-type">object | string</span></dt>
+    <dd>The channel containing the message (echoed from input).</dd>
+  </dl>
+
+  <h4><code>type: "set"</code> / <code>"remove"</code> — reaction added or removed</h4>
   <dl class="message-properties">
     <dt>payload <span class="property-type">string</span></dt>
     <dd>The emoji that was pressed (Unicode or custom emoji name).</dd>
@@ -58,12 +71,26 @@
     <dd>The message we are monitoring, so you can reference it later.</dd>
     <dt>user <span class="property-type">object</span></dt>
     <dd>The user who just reacted.</dd>
-    <dt>_originalFlowMessage <span class="property-type">object</span></dt>
-    <dd>Whatever you originally injected into this node (handy if you need extra context).</dd>
   </dl>
+
+  <h4><code>type: "end"</code> — collector stopped</h4>
+  <dl class="message-properties">
+    <dt>payload <span class="property-type">string</span></dt>
+    <dd><code>"timeout"</code> if the collection time expired, or <code>"commanded"</code> if stopped via <code>msg.stop</code>.</dd>
+    <dt>collected <span class="property-type">number</span></dt>
+    <dd>How many reactions were gathered during the session.</dd>
+    <dt>message <span class="property-type">object | string</span></dt>
+    <dd>The message that was being watched (echoed from input).</dd>
+    <dt>channel <span class="property-type">object | string</span></dt>
+    <dd>The channel containing the message (echoed from input).</dd>
+  </dl>
+
+  <p>All output types include <code>_originalFlowMessage</code> with whatever you originally injected into this node.</p>
 
   <h3>Tips</h3>
   <ul>
+    <li>Use a switch node on <code>msg.type</code> to separate reaction events (<code>set</code>/<code>remove</code>) from lifecycle signals (<code>open</code>/<code>end</code>).</li>
+    <li>Wire the <code>end</code> output back into this node to automatically restart the collector after a timeout.</li>
     <li>After Node-RED restarts you must send the message/channel info again so the watcher can reattach.</li>
     <li>Wire the output into a switch node keyed on <code>msg.payload</code> to handle different emoji choices.</li>
     <li>Combine the <code>count</code> value with dashboard nodes to build a quick poll leaderboard.</li>

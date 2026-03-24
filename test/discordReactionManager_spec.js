@@ -103,4 +103,97 @@ describe('discordReactionManager Node', function () {
       });
     });
   });
+
+  it('emits an open message when a collector is created', function (done) {
+    helper.load([discordToken, discordReactionManager], flow, function () {
+      const helperNode = helper.getNode('n2');
+      const node = helper.getNode('n1');
+
+      helperNode.on('input', function (msg) {
+        try {
+          msg.should.have.property('type', 'open');
+          msg.should.have.property('payload', 600000);
+          msg.should.have.property('message', 'msg-456');
+          msg.should.have.property('channel', 'chan-1');
+          done();
+        } catch (err) {
+          done(err);
+        }
+      });
+
+      node.receive({ channel: 'chan-1', message: 'msg-456' });
+    });
+  });
+
+  it('emits an end message with reason timeout', function (done) {
+    helper.load([discordToken, discordReactionManager], flow, function () {
+      const helperNode = helper.getNode('n2');
+      const node = helper.getNode('n1');
+
+      node.receive({ channel: 'chan-1', message: 'msg-456' });
+
+      setImmediate(function () {
+        try {
+          // Find the 'end' callback registered on the collector
+          const endCall = collector.on.getCalls().find(c => c.args[0] === 'end');
+          endCall.should.be.ok();
+          const endCallback = endCall.args[1];
+
+          helperNode.on('input', function (msg) {
+            try {
+              if (msg.type !== 'end') return; // skip the open message
+              msg.should.have.property('payload', 'timeout');
+              msg.should.have.property('type', 'end');
+              msg.should.have.property('collected', 0);
+              msg.should.have.property('message', 'msg-456');
+              msg.should.have.property('channel', 'chan-1');
+              done();
+            } catch (err) {
+              done(err);
+            }
+          });
+
+          // Simulate the collector ending due to time
+          endCallback(new Map(), 'time');
+        } catch (err) {
+          done(err);
+        }
+      });
+    });
+  });
+
+  it('emits an end message with reason commanded', function (done) {
+    helper.load([discordToken, discordReactionManager], flow, function () {
+      const helperNode = helper.getNode('n2');
+      const node = helper.getNode('n1');
+
+      node.receive({ channel: 'chan-1', message: 'msg-456' });
+
+      setImmediate(function () {
+        try {
+          const endCall = collector.on.getCalls().find(c => c.args[0] === 'end');
+          endCall.should.be.ok();
+          const endCallback = endCall.args[1];
+
+          helperNode.on('input', function (msg) {
+            try {
+              if (msg.type !== 'end') return;
+              msg.should.have.property('payload', 'commanded');
+              msg.should.have.property('type', 'end');
+              msg.should.have.property('message', 'msg-456');
+              msg.should.have.property('channel', 'chan-1');
+              done();
+            } catch (err) {
+              done(err);
+            }
+          });
+
+          // Simulate the collector being stopped manually
+          endCallback(new Map(), 'user');
+        } catch (err) {
+          done(err);
+        }
+      });
+    });
+  });
 });
