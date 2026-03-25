@@ -110,14 +110,14 @@ describe('discordReactionManager Node', function () {
     });
   });
 
-  it('emits an open message when a collector is created', function (done) {
+  it('emits a start message when a collector is created', function (done) {
     helper.load([discordToken, discordReactionManager], flow, function () {
       const helperNode = helper.getNode('n2');
       const node = helper.getNode('n1');
 
       helperNode.on('input', function (msg) {
         try {
-          msg.should.have.property('type', 'open');
+          msg.should.have.property('type', 'start');
           msg.should.have.property('payload', 600000);
           msg.should.have.property('message', 'msg-456');
           msg.should.have.property('channel', 'chan-1');
@@ -147,7 +147,7 @@ describe('discordReactionManager Node', function () {
 
           helperNode.on('input', function (msg) {
             try {
-              if (msg.type !== 'end') return; // skip the open message
+              if (msg.type !== 'end') return; // skip the start message
               msg.should.have.property('payload', 'timeout');
               msg.should.have.property('type', 'end');
               msg.should.have.property('collected').eql({});

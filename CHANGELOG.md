@@ -8,7 +8,7 @@
 ## 4.3.2
 
 ### Features
-- `discordReactionManager`: emits lifecycle messages — `type: "open"` when a collector starts and `type: "end"` (with reason `"timeout"` or `"commanded"`) when it stops, including the collected reaction count. Both lifecycle messages echo `message` and `channel` from the input so the output can be piped back to restart a collector.
+- `discordReactionManager`: emits lifecycle messages — `type: "start"` when a collector starts and `type: "end"` (with reason `"timeout"` or `"commanded"`) when it stops, including the collected reaction count. Both lifecycle messages echo `message` and `channel` from the input so the output can be piped back to restart a collector.
 
 ## 4.3.1
 

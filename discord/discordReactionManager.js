@@ -111,7 +111,7 @@ module.exports = function (RED) {
         });
         send({
           payload: collectionTime,
-          type: "open",
+          type: "start",
           message: msg.message,
           channel: msg.channel,
           _originalFlowMessage: msg
