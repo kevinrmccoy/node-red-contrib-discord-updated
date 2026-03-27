@@ -123,6 +123,38 @@ describe('Discord Message Manager Node', function () {
         });
     });
 
+    it('Falls back to msg.message.channelId when msg.channel is not set', function (done) {
+        stubDiscord.channels = sinon.createStubInstance(discord.ChannelManager);
+        const outputPayload = { message: "Hello there", channel: "2222222222" };
+        stubDiscord.channels.fetch.resolves({
+            send: () => new Promise((resolve) => resolve(outputPayload))
+        });
+
+        let flow = [{ id: "n1", type: "discordMessageManager", name: "test name", token: "24205d54014eb63f", wires: [["n2"]] },
+            { id: "24205d54014eb63f", type: "discord-token", name: "node boy" },
+            { id: "n2", type: "helper" }];
+
+        helper.load([discordToken, discordMessageManager], flow, () => {
+            let n1 = helper.getNode("n1");
+            let n2 = helper.getNode("n2");
+            let nodeRedMsg = { _msgid: 'aa1122334455', payload: "Hello", message: { id: 'msg-1', channelId: '2222222222' } };
+
+            n1.receive(nodeRedMsg);
+            n1.on('call:error', call => {
+                done(call);
+            });
+            n2.on("input", function (msg) {
+                try {
+                    msg.should.have.property('payload', outputPayload);
+                    stubDiscord.channels.fetch.should.be.calledWith('2222222222');
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
+        });
+    });
+
     it('Take message content from msg.payload.content', function (done) {
         stubDiscord.channels = sinon.createStubInstance(discord.ChannelManager);
         const outputPayload = { message: "Hello there", channel: "1111111111" };

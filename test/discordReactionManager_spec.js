@@ -168,6 +168,96 @@ describe('discordReactionManager Node', function () {
     });
   });
 
+  it('falls back to msg.message.channelId when msg.channel is not set', function (done) {
+    helper.load([discordToken, discordReactionManager], flow, function () {
+      const node = helper.getNode('n1');
+
+      node.receive({ message: { id: 'msg-789', channelId: 'chan-from-msg' } });
+
+      setImmediate(function () {
+        try {
+          bot.channels.fetch.should.be.calledWith('chan-from-msg');
+          messageObject.createReactionCollector.should.be.calledOnce();
+          done();
+        } catch (err) {
+          done(err);
+        }
+      });
+    });
+  });
+
+  it('emits channel on collect events', function (done) {
+    helper.load([discordToken, discordReactionManager], flow, function () {
+      const helperNode = helper.getNode('n2');
+      const node = helper.getNode('n1');
+
+      node.receive({ channel: 'chan-1', message: 'msg-456' });
+
+      setImmediate(function () {
+        try {
+          const collectCall = collector.on.getCalls().find(c => c.args[0] === 'collect');
+          collectCall.should.be.ok();
+          const collectCallback = collectCall.args[1];
+
+          bot.users = { fetch: sinon.stub().resolves({ id: 'author-1' }) };
+
+          helperNode.on('input', function (msg) {
+            try {
+              if (msg.type !== 'set') return;
+              msg.should.have.property('channel', 'chan-1');
+              done();
+            } catch (err) {
+              done(err);
+            }
+          });
+
+          collectCallback(
+            { _emoji: { name: '👍' }, count: 1, message: { author: { id: 'author-1' }, toJSON: () => ({}) } },
+            { fetch: sinon.stub().resolves({ id: 'reactor-1', toJSON: () => ({}) }) }
+          );
+        } catch (err) {
+          done(err);
+        }
+      });
+    });
+  });
+
+  it('emits channel on remove events', function (done) {
+    helper.load([discordToken, discordReactionManager], flow, function () {
+      const helperNode = helper.getNode('n2');
+      const node = helper.getNode('n1');
+
+      node.receive({ channel: 'chan-1', message: 'msg-456' });
+
+      setImmediate(function () {
+        try {
+          const removeCall = collector.on.getCalls().find(c => c.args[0] === 'remove');
+          removeCall.should.be.ok();
+          const removeCallback = removeCall.args[1];
+
+          bot.users = { fetch: sinon.stub().resolves({ id: 'author-1' }) };
+
+          helperNode.on('input', function (msg) {
+            try {
+              if (msg.type !== 'remove') return;
+              msg.should.have.property('channel', 'chan-1');
+              done();
+            } catch (err) {
+              done(err);
+            }
+          });
+
+          removeCallback(
+            { _emoji: { name: '👍' }, count: 0, message: { author: { id: 'author-1' }, toJSON: () => ({}) } },
+            { fetch: sinon.stub().resolves({ id: 'reactor-1', toJSON: () => ({}) }) }
+          );
+        } catch (err) {
+          done(err);
+        }
+      });
+    });
+  });
+
   it('emits an end message with reason commanded', function (done) {
     helper.load([discordToken, discordReactionManager], flow, function () {
       const helperNode = helper.getNode('n2');

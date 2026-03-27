@@ -65,7 +65,7 @@ module.exports = function (RED) {
           return;
         }
 
-        const channel = checkIdOrObject(msg.channel);
+        const channel = checkIdOrObject(msg.channel) || msg.message?.channelId;
         const collectionTime = msg.time || 600000;
 
         if (!channel) {
@@ -131,6 +131,7 @@ module.exports = function (RED) {
               payload: reaction._emoji.name,
               count: reaction.count,
               type: "remove",
+              channel: msg.channel,
               message: clone(reaction.message),
               user: clone(reactor),
               _originalFlowMessage: msg
@@ -158,6 +159,7 @@ module.exports = function (RED) {
               payload: reaction._emoji.name,
               count: reaction.count,
               type: "set",
+              channel: msg.channel,
               message: clone(reaction.message),
               user: clone(reactor),
               _originalFlowMessage: msg

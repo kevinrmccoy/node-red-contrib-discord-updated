@@ -18,7 +18,7 @@ module.exports = function (RED) {
       node.on('input', async function (msg, send, done) {
         send = send || node.send.bind(node);
         done = done || function (err) { if (err) { node.error(err, msg); } };
-        const channel = config.channel || msg.channel || null;
+        const channel = config.channel || msg.channel || msg.message?.channelId || null;
         const action = msg.action || 'create';
         const user = msg.user || null;
         const content = msg.payload?.content || checkString(msg.payload) || ' ';

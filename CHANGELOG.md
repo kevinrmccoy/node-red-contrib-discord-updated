@@ -1,5 +1,11 @@
 # Changelog\
 
+## 4.3.4
+
+### Features
+- `discordMessageManager` and `discordReactionManager`: when `msg.channel` is not set, both nodes now fall back to `msg.message.channelId` to resolve the channel automatically.
+- `discordReactionManager`: `collect` and `remove` event messages now include `msg.channel`, matching the existing behavior of `start` and `end` messages.
+
 ## 4.3.3
 
 ### Features
