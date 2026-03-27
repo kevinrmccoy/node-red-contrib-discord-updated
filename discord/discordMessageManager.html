@@ -42,13 +42,13 @@ a<script type="text/javascript">
     </div>
 </script>
 <script type="text/x-red" data-help-name="discordMessageManager">
-  <p><strong>What it does</strong> — Sends or edits regular Discord messages (text, embeds, attachments) in channels or DMs. It can also delete, react to, or look up existing messages.</p>
+  <p><strong>What it does</strong> — Sends or edits regular Discord messages (text, embeds, attachments) in channels or DMs. It can also delete, react to, unreact from, or look up existing messages.</p>
   <p><strong>When to use it</strong> — Any message that is not a direct interaction reply. For slash-command responses use <code>discordInteractionManager</code> first, then this node for follow-up messages if you need them.</p>
 
   <h3>Key inputs</h3>
   <dl class="message-properties">
     <dt>action <span class="property-type">string</span></dt>
-    <dd>What to do: <code>create</code>, <code>edit</code>, <code>delete</code>, <code>reply</code>, <code>react</code>, <code>crosspost</code>, <code>search</code>, or <code>info</code>. Defaults to <code>create</code>.</dd>
+    <dd>What to do: <code>create</code>, <code>edit</code>, <code>delete</code>, <code>reply</code>, <code>react</code>, <code>unreact</code>, <code>crosspost</code>, <code>search</code>, or <code>info</code>. Defaults to <code>create</code>.</dd>
     <dt>payload <span class="property-type">string</span></dt>
     <dd>The text body of the message. Required for create/edit/reply.</dd>
     <dt>channel <span class="property-type">object | string</span></dt>
@@ -56,7 +56,7 @@ a<script type="text/javascript">
     <dt>user <span class="property-type">object | string</span></dt>
     <dd>Use instead of <code>channel</code> when you want to DM the user.</dd>
     <dt>message <span class="property-type">object | string</span></dt>
-    <dd>The message you want to edit, delete, react to, or inspect.</dd>
+    <dd>The message you want to edit, delete, react to, unreact from, or inspect.</dd>
     <dt>embeds / components <span class="property-type">object | array</span></dt>
     <dd>Embed or component payloads that accompany the message.</dd>
     <dt class="optional">suppressEmbeds / suppressNotifications <span class="property-type">boolean</span></dt>
@@ -82,6 +82,7 @@ a<script type="text/javascript">
     <li><code>create</code> needs <code>msg.payload</code> plus either <code>msg.channel</code> or <code>msg.user</code>.</li>
     <li>For edits or deletes, set <code>msg.message</code> to the original message object/id and include the channel.</li>
     <li>Use <code>react</code> with <code>msg.payload</code> set to an emoji name such as <code>👍</code> or <code>my_custom:123456</code>.</li>
+    <li>Use <code>unreact</code> the same way as <code>react</code> to remove the bot's reaction from a message.</li>
     <li>Attachments from URLs are not validated; make sure the link is reachable or Discord will refuse it.</li>
     <li>Add accessibility text with <code>description</code>, mark spoilers with <code>spoiler: true</code>, and include clip length via <code>duration</code> (seconds) or <code>durationMs</code>.</li>
     <li>Set <code>msg.suppressEmbeds</code> or <code>msg.suppressNotifications</code> (or add them inside <code>msg.payload</code>) to control Discord’s message flags.</li>

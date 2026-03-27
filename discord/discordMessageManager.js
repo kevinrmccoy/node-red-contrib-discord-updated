@@ -295,6 +295,26 @@ module.exports = function (RED) {
           }
         }
 
+        const unreactToMessage = async () => {
+          try {
+            let message = await discordFramework.getMessage(bot, channel, messageId);
+            const emoji = message.guild.emojis.cache.find(emoji => emoji.name === content);
+            let reaction = message.reactions.resolve(emoji || content);
+            if (!reaction) throw new Error('Reaction not found on message');
+            await reaction.users.remove(bot.user.id);
+            const newMsg = {
+              emoji: reaction._emoji.name,
+              animated: reaction.emoji.animated,
+              count: reaction.count - 1,
+              message: clone(message)
+            };
+
+            setSuccess(`message ${message.id} unreacted`, newMsg);
+          } catch (err) {
+            setError(err);
+          }
+        }
+
         const crosspostMessage = async () => {
           try {
             let message = await discordFramework.getMessage(bot, channel, messageId);  
@@ -341,6 +361,9 @@ module.exports = function (RED) {
             break;
           case 'react':
             await reactToMessage();
+            break;
+          case 'unreact':
+            await unreactToMessage();
             break;
           case 'crosspost':
             await crosspostMessage();

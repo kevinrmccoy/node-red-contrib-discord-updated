@@ -11,6 +11,7 @@ Currently the following actions are supported:
 * Edit, reply, delete messages in a channel.
 * Publish messages to announcements channels.
 * React to messages with emojis.
+* Remove (unreact) the bot's reaction from messages.
 * Listen for reactions on a message.
 * Listen for interactions on a message button or select menu.
 * Listen for interactions on commands.

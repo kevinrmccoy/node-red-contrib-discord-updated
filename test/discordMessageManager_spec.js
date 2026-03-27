@@ -506,7 +506,92 @@ describe('Discord Message Manager Node', function () {
         });
     });
 
-    it('Wrong token calls node.status', function (done) {       
+    it('Unreact removes bot reaction and outputs emoji info', function (done) {
+        stubDiscord.channels = sinon.createStubInstance(discord.ChannelManager);
+        const removeStub = sinon.stub().resolves();
+        const fakeMessage = {
+            id: 'msg-123',
+            guild: { emojis: { cache: { find: () => undefined } } },
+            reactions: {
+                resolve: () => ({
+                    _emoji: { name: '👍' },
+                    emoji: { animated: false },
+                    count: 2,
+                    users: { remove: removeStub }
+                })
+            },
+            toJSON: () => ({})
+        };
+        stubDiscord.channels.fetch.resolves({
+            messages: { fetch: sinon.stub().resolves(fakeMessage) }
+        });
+        stubDiscord.user = { id: 'bot-user-id' };
+
+        let flow = [{ id: "n1", type: "discordMessageManager", name: "test name", token: "24205d54014eb63f", wires: [["n2"]] },
+            { id: "24205d54014eb63f", type: "discord-token", name: "node boy" },
+            { id: "n2", type: "helper" }];
+
+        helper.load([discordToken, discordMessageManager], flow, () => {
+            let n1 = helper.getNode("n1");
+            let n2 = helper.getNode("n2");
+            let nodeRedMsg = { _msgid: 'dd3be2d56799887c', payload: '👍', channel: '1111111111', message: 'msg-123', action: 'unreact' };
+
+            n1.receive(nodeRedMsg);
+            n1.on('call:error', call => {
+                done(call.args[0]);
+            });
+            n2.on("input", function (msg) {
+                try {
+                    removeStub.should.be.calledWith('bot-user-id');
+                    msg.payload.should.have.property('emoji', '👍');
+                    msg.payload.should.have.property('animated', false);
+                    msg.payload.should.have.property('count', 1);
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
+        });
+    });
+
+    it('Unreact with no matching reaction should fail', function (done) {
+        stubDiscord.channels = sinon.createStubInstance(discord.ChannelManager);
+        const fakeMessage = {
+            id: 'msg-456',
+            guild: { emojis: { cache: { find: () => undefined } } },
+            reactions: {
+                resolve: () => null
+            },
+            toJSON: () => ({})
+        };
+        stubDiscord.channels.fetch.resolves({
+            messages: { fetch: sinon.stub().resolves(fakeMessage) }
+        });
+        stubDiscord.user = { id: 'bot-user-id' };
+
+        let flow = [{ id: "n1", type: "discordMessageManager", name: "test name", token: "24205d54014eb63f" },
+            { id: "24205d54014eb63f", type: "discord-token", name: "node boy" }];
+
+        helper.load([discordToken, discordMessageManager], flow, () => {
+            let n1 = helper.getNode("n1");
+            let nodeRedMsg = { _msgid: 'dd3be2d56799887c', payload: '🎉', channel: '1111111111', message: 'msg-456', action: 'unreact' };
+
+            n1.receive(nodeRedMsg);
+            setImmediate(() => {
+                try {
+                    n1.error.should.be.called();
+                    const args = n1.error.firstCall.args;
+                    args[0].should.be.instanceOf(Error);
+                    args[0].message.should.equal('Reaction not found on message');
+                    done();
+                } catch (err) {
+                    done(err);
+                }
+            });
+        });
+    });
+
+    it('Wrong token calls node.status', function (done) {
         const err = "Error [TOKEN_INVALID]: An invalid token was provided.";
         getBotStub.restore();        
         getBotStub = sinon.stub(discordBotManager, 'getBot').rejects(err);       
